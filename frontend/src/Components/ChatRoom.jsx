@@ -1,6 +1,33 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
+import styled from "styled-components";
+import ChatBody from "./ChatBody";
+import Header from "./Header";
+import Button from "./UI/Button";
+import Input from "./UI/Input";
 
-const ChatRoom = ({ socket, username, room }) => {
+const Container = styled.div`
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 15px;
+`;
+
+const Form = styled.form`
+  width: 60%;
+  position: relative;
+`;
+
+const StyledInput = styled(Input)`
+  width: 100%;
+`;
+const StyledButton = styled(Button)`
+  position: absolute;
+  right: 0px;
+`;
+const ChatRoom = ({socket, username, room}) => {
   const [currentMessage, setCurrentMessage] = useState("");
 
   useEffect(() => {
@@ -14,7 +41,8 @@ const ChatRoom = ({ socket, username, room }) => {
     // }
   }, [socket]);
 
-  const sendMessage = async () => {
+  const sendMessage = async (e) => {
+    e.preventDefault();
     if (currentMessage !== "") {
       const messageData = {
         room: room,
@@ -26,19 +54,18 @@ const ChatRoom = ({ socket, username, room }) => {
     }
   };
   return (
-    <div>
-      ChatRoom
-      <div>Header</div>
-      <div>Chat body</div>
-      <div>
-        <input
+    <Container>
+      <Header participant="George" />
+      <ChatBody />
+      <Form onSubmit={sendMessage}>
+        <StyledInput
           type="text"
           placeholder="Message..."
           onChange={(event) => setCurrentMessage(event.target.value)}
         />
-        <button onClick={sendMessage}>&#9658;</button>
-      </div>
-    </div>
+        <StyledButton>&#9658;</StyledButton>
+      </Form>
+    </Container>
   );
 };
 

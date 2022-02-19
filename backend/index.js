@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const http = require("http");
-const { Server } = require("socket.io");
+const {Server} = require("socket.io");
 
 const server = http.createServer(app);
 
@@ -15,9 +15,14 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log(`User Connected: ${socket.id}`);
 
-  socket.on("join_room", (data) => {
-    socket.join(data);
-    console.log(`User with ID: ${socket.id} joined room: ${data}`);
+  socket.on("join_room", (data, callback) => {
+    try {
+      socket.join(data);
+      callback({successfullyJoined: true, error: null});
+      console.log(`User with ID: ${socket.id} joined room: ${data}`);
+    } catch (error) {
+      callback({successfullyJoined: false, error: error});
+    }
   });
 
   socket.on("send_message", (data) => {
