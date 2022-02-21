@@ -2,16 +2,20 @@ import React from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
-  height: 100px;
+  min-height: 100px;
   width: 100%;
-  background-image: linear-gradient(#0dccea, #0d70ea);
+  background-color: #ff9f1c;
   color: #fff;
   display: flex;
   justify-content: center;
   align-items: center;
 `;
-const Header = ({participant}) => {
-  return <Container>You are chatting with: {participant}</Container>;
+const Header = ({participants}) => {
+  return (
+    <Container>
+      You are chatting with: {participants.length === 0 ? "None" : participants.join(", ")}
+    </Container>
+  );
 };
 
 export default Header;

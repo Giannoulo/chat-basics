@@ -1,7 +1,8 @@
 import styled from "styled-components";
 
 const Button = styled.button`
-  background-image: linear-gradient(#0dccea, #0d70ea);
+  /* background-image: linear-gradient(#0dccea, #0d70ea); */
+  background-color: #2ec4b6;
   border: 0;
   border-radius: 4px;
   box-shadow: rgba(0, 0, 0, 0.3) 0 5px 15px;

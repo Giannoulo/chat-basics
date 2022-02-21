@@ -12,7 +12,7 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #fdfdfd;
+  background-color: #fff;
   font-size: 22px;
   font-family: "Roboto", sans-serif;
 `;
@@ -31,6 +31,7 @@ const Form = styled.form`
 function App() {
   const [socket, setSocket] = useState(null);
   const [room, setRoom] = useState("");
+  const [username, setUsername] = useState("");
   const [joinedRoom, setJoinedRoom] = useState(false);
 
   useEffect(() => {
@@ -40,25 +41,27 @@ function App() {
 
   const joinRoom = (e) => {
     e.preventDefault();
-    if (room !== "") {
-      socket.emit("join_room", room, function (data) {
-        if (data.successfullyJoined === true) {
-          setJoinedRoom(room);
-        } else {
-          console.log(data.error);
-        }
-      });
+    if (room !== "" && username !== "") {
+      socket.emit("join_room", {username: username, room: room});
+      setJoinedRoom(true);
     }
   };
 
   return (
     <Container>
       {joinedRoom ? (
-        <ChatRoom socket={socket} room={room} />
+        <ChatRoom socket={socket} room={room} username={username} />
       ) : (
         <>
           <Title>Start Chatting</Title>
           <Form onSubmit={joinRoom}>
+            <Input
+              type="text"
+              placeholder="Username..."
+              onChange={(event) => {
+                setUsername(event.target.value);
+              }}
+            />
             <Input
               type="text"
               placeholder="Room ID..."

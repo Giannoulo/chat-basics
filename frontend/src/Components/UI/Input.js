@@ -6,6 +6,7 @@ const Input = styled.input`
   font-size: 1.5rem;
   border: 1px solid #e0e0e0;
   border-radius: 10px;
+  margin: 5px 0px;
   &:focus-visible {
     border: 1px solid #777777;
     outline: none;
