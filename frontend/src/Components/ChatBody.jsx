@@ -1,7 +1,7 @@
 import React, {useRef, useEffect} from "react";
 import styled from "styled-components";
-import SentMessage from "./StyledComponents/SentMessage";
-import ReceivedMessage from "./StyledComponents/ReceivedMessage";
+
+import Bubble from "./Bubble";
 
 const Container = styled.div`
   background-color: #fff;
@@ -51,11 +51,7 @@ const ChatBody = ({messages, username}) => {
                 "  -  " +
                 messageObj.author}
             </Time>
-            {sent ? (
-              <SentMessage color={messageObj.color}>{messageObj.message}</SentMessage>
-            ) : (
-              <ReceivedMessage color={messageObj.color}>{messageObj.message}</ReceivedMessage>
-            )}
+            <Bubble sent={sent} messageObj={messageObj} />
           </React.Fragment>
         );
       })}
