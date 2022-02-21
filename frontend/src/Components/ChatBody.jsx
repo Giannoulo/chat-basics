@@ -1,7 +1,7 @@
 import React, {useRef, useEffect} from "react";
 import styled from "styled-components";
-import SentMessage from "./UI/SentMessage";
-import ReceivedMessage from "./UI/ReceivedMessage";
+import SentMessage from "./StyledComponents/SentMessage";
+import ReceivedMessage from "./StyledComponents/ReceivedMessage";
 
 const Container = styled.div`
   background-color: #fff;
@@ -15,16 +15,15 @@ const Container = styled.div`
     width: 98%;
   }
 `;
-
 const Time = styled.span`
   margin-top: 15px;
   font-size: 0.7rem;
   align-self: ${(props) => (props.sent ? "flex-end" : "flex-start")};
 `;
-
 const Target = styled.div`
   margin-top: 20px;
 `;
+
 const ChatBody = ({messages, username}) => {
   const messagesEndRef = useRef(null);
 
@@ -53,9 +52,9 @@ const ChatBody = ({messages, username}) => {
                 messageObj.author}
             </Time>
             {sent ? (
-              <SentMessage>{messageObj.message}</SentMessage>
+              <SentMessage color={messageObj.color}>{messageObj.message}</SentMessage>
             ) : (
-              <ReceivedMessage>{messageObj.message}</ReceivedMessage>
+              <ReceivedMessage color={messageObj.color}>{messageObj.message}</ReceivedMessage>
             )}
           </React.Fragment>
         );

@@ -2,14 +2,14 @@ import styled from "styled-components";
 import Message from "./Message";
 
 const SentMessage = styled(Message)`
-  background: #89c965;
+  background: #8ac926;
   align-self: flex-end;
   margin-right: 5px;
   box-shadow: -4px 4px 6px -1px rgba(0, 0, 0, 0.23);
   &:before {
     width: 20px;
     right: -7px;
-    background-color: #89c965;
+    background-color: #8ac926;
     border-bottom-left-radius: 16px 14px;
   }
   &:after {

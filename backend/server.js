@@ -1,10 +1,11 @@
 const express = require("express");
-const app = express();
 const http = require("http");
 const {Server} = require("socket.io");
 
-const server = http.createServer(app);
+const {emitRoomClients} = require("./eventHandlers");
 
+const app = express();
+const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:3000",
@@ -20,44 +21,34 @@ io.on("connection", (socket) => {
     socket.join(data.room);
     socket.username = data.username;
     console.log(`User with ID: ${socket.id} joined room: ${data.room}`);
-    // Emit the updated room clients to all room clients
-    io.in(data.room)
-      .fetchSockets()
-      .then((sockets) => {
-        io.in(data.room).emit(
-          "room_clients",
-          sockets.map((socket) => socket.username)
-        );
-      });
+    emitRoomClients(data.room, io);
   });
 
   socket.on("get_room_clients", (room) => {
-    io.in(room)
-      .fetchSockets()
-      .then((sockets) => {
-        io.in(room).emit(
-          "room_clients",
-          sockets.map((socket) => socket.username)
-        );
-      });
+    emitRoomClients(room, io);
   });
 
   socket.on("send_message", (data) => {
     io.in(data.room).emit("receive_message", data);
   });
 
+  socket.on("remove_message", (data) => {
+    io.in(data.room).emit("remove_message", data.username);
+  });
+
+  socket.on("change_username", ({username, room}) => {
+    console.log(username);
+    socket.username = username;
+    emitRoomClients(room, io);
+    console.log(`User with ID: ${socket.id} changed username to: ${username}`);
+  });
+
   // Use disconnecting to get rooms before the socket disconnects
   socket.on("disconnecting", () => {
     for (const room of socket.rooms) {
+      // All sockets are join in their own room by default
       if (room !== socket.id) {
-        io.in(room)
-          .fetchSockets()
-          .then((sockets) => {
-            io.in(room).emit(
-              "room_clients",
-              sockets.map((socket) => socket.username)
-            );
-          });
+        emitRoomClients(room, io);
       }
     }
   });

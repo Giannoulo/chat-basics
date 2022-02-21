@@ -7,6 +7,7 @@ const Message = styled.div`
   max-width: 60%;
   padding: 8px 15px;
   border-radius: 15px;
+  color: ${(props) => props.color};
   &:before {
     width: 20px;
   }

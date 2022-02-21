@@ -3,8 +3,8 @@ import io from "socket.io-client";
 import styled from "styled-components";
 
 import ChatRoom from "./Components/ChatRoom.jsx";
-import Button from "./Components/UI/Button";
-import Input from "./Components/UI/Input.js";
+import Button from "./Components/StyledComponents/Button";
+import Input from "./Components/StyledComponents/Input.js";
 
 const Container = styled.div`
   height: 100%;
@@ -16,14 +16,12 @@ const Container = styled.div`
   font-size: 22px;
   font-family: "Roboto", sans-serif;
 `;
-
 const Title = styled.span`
   font-size: 2rem;
   color: #464646;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   margin-bottom: 20px;
 `;
-
 const Form = styled.form`
   display: contents;
 `;
@@ -50,7 +48,7 @@ function App() {
   return (
     <Container>
       {joinedRoom ? (
-        <ChatRoom socket={socket} room={room} username={username} />
+        <ChatRoom socket={socket} room={room} username={username} setUsername={setUsername} />
       ) : (
         <>
           <Title>Start Chatting</Title>
