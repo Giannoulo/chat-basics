@@ -21,7 +21,7 @@ const Time = styled.span`
   align-self: ${(props) => (props.sent ? "flex-end" : "flex-start")};
 `;
 const Target = styled.div`
-  margin-top: 20px;
+  margin-top: 30px;
 `;
 
 const ChatBody = ({messages, username}) => {

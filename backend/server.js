@@ -36,6 +36,10 @@ io.on("connection", (socket) => {
     io.in(data.room).emit("remove_message", data.username);
   });
 
+  socket.on("fade_message", (data) => {
+    io.in(data.room).emit("fade_message", data.username);
+  });
+
   socket.on("change_username", ({username, room}) => {
     console.log(username);
     socket.username = username;

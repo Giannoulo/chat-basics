@@ -15,9 +15,23 @@ const Bubble = ({sent, messageObj}) => {
   return (
     <>
       {sent ? (
-        <SentMessage color={messageObj.color}>{formatedMsg}</SentMessage>
+        <SentMessage
+          color={messageObj.color}
+          opacity={messageObj.opacity}
+          fontSize={messageObj.fontSize}
+          brightness={messageObj.brightness}
+        >
+          {formatedMsg}
+        </SentMessage>
       ) : (
-        <ReceivedMessage color={messageObj.color}>{formatedMsg}</ReceivedMessage>
+        <ReceivedMessage
+          color={messageObj.color}
+          opacity={messageObj.opacity}
+          fontSize={messageObj.fontSize}
+          brightness={messageObj.brightness}
+        >
+          {formatedMsg}
+        </ReceivedMessage>
       )}
     </>
   );

@@ -43,7 +43,33 @@ const ChatRoom = ({socket, username, room, setUsername}) => {
       }
     });
     socket.on("remove_message", (username) => {
-      // Delete the last user send message
+      // Delete the last user sent message
+      const messageArray = [...messages];
+      for (let i = messageArray.length - 1; i >= 0; i--) {
+        if (messageArray[i].author === username) {
+          messageArray.splice(i, 1);
+          if (isMounted.current) {
+            setMessages(messageArray);
+            break;
+          }
+        }
+      }
+    });
+    socket.on("fade_message", (username) => {
+      // Fade the last user sent message
+      const messageArray = [...messages];
+      for (let i = messageArray.length - 1; i >= 0; i--) {
+        if (messageArray[i].author === username) {
+          messageArray[i].opacity = 0.1;
+          if (isMounted.current) {
+            setMessages(messageArray);
+            break;
+          }
+        }
+      }
+    });
+    socket.on("remove_message", (username) => {
+      // Delete the last user sent message
       const messageArray = [...messages];
       for (let i = messageArray.length - 1; i >= 0; i--) {
         if (messageArray[i].author === username) {
@@ -69,6 +95,7 @@ const ChatRoom = ({socket, username, room, setUsername}) => {
       // Remove event listeners on cleanup
       socket.off("receive_message");
       socket.off("remove_message");
+      socket.off("fade_message");
       socket.off("room_clients");
     };
   }, [socket, username, participants, messages]);
@@ -96,12 +123,22 @@ const ChatRoom = ({socket, username, room, setUsername}) => {
     }
   }, [currentMessage, messages, room, setUsername, socket, username]);
 
-  const thinkingMessage = useCallback(() => {
+  const formatMessage = useCallback(() => {
+    const formatObj = {
+      remainingMessage: "",
+      highlight: false,
+      thinking: false,
+    };
     if (currentMessage.includes("/think ")) {
-      const message = currentMessage.split("/think ")[1];
-      return message;
+      formatObj.remainingMessage = currentMessage.split("/think ")[1];
+      formatObj.thinking = true;
+      return formatObj;
+    } else if (currentMessage.includes("/highlight ")) {
+      formatObj.remainingMessage = currentMessage.split("/highlight ")[1];
+      formatObj.highlight = true;
+      return formatObj;
     } else {
-      return "";
+      return formatObj;
     }
   }, [currentMessage]);
 
@@ -114,20 +151,37 @@ const ChatRoom = ({socket, username, room, setUsername}) => {
     }
   }, [currentMessage, room, socket, username]);
 
+  const fadeLastMessage = useCallback(() => {
+    if (currentMessage.includes("/fadelast")) {
+      socket.emit("fade_message", {room: room, username: username});
+      return true;
+    } else {
+      return false;
+    }
+  }, [currentMessage, room, socket, username]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (currentMessage !== "") {
       const deletedMessage = deleteMessage();
       const newUsername = changeUsername();
-      const message = thinkingMessage();
+      const fadedMessage = fadeLastMessage();
+
+      const formatObj = formatMessage();
+
       const messageData = {
         room: room,
         author: newUsername ? newUsername : username,
-        message: message ? message : currentMessage,
+        message: formatObj.remainingMessage ? formatObj.remainingMessage : currentMessage,
         time: new Date(Date.now()).getTime(),
-        color: message ? "#6e6e6e" : "#000",
+        color: formatObj.thinking ? "#6e6e6e" : "#000",
+        fontSize: formatObj.highlight ? "1.4rem" : "1.2rem",
+        brightness: formatObj.highlight ? "darken" : "normal",
+        opacity: 1,
       };
-      !newUsername && !deletedMessage && socket.emit("send_message", messageData);
+      if (!newUsername && !deletedMessage && !fadedMessage) {
+        socket.emit("send_message", messageData);
+      }
       setCurrentMessage("");
     }
   };

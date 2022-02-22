@@ -3,7 +3,7 @@ import styled from "styled-components";
 const Message = styled.div`
   position: relative;
   word-wrap: break-word;
-  font-size: 1.1rem;
+  font-size: ${(props) => props.fontSize};
   max-width: 60%;
   padding: 8px 15px;
   border-radius: 15px;
