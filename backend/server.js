@@ -1,8 +1,8 @@
 const express = require("express");
 const http = require("http");
-const {Server} = require("socket.io");
+const { Server } = require("socket.io");
 
-const {emitRoomClients} = require("./eventHandlers");
+const { emitRoomClients } = require("./eventHandlers");
 
 const app = express();
 const server = http.createServer(app);
@@ -40,8 +40,17 @@ io.on("connection", (socket) => {
     io.in(data.room).emit("fade_message", data.username);
   });
 
-  socket.on("change_username", ({username, room}) => {
-    console.log(username);
+  socket.on("countdown", (data) => {
+    // Use socket instead of io, to exclude sender
+    socket.to(data.room).emit("countdown", { counter: data.counter, website: data.website });
+  });
+
+  socket.on("typing_notification", (data) => {
+    // Use socket instead of io, to exclude sender
+    socket.to(data.room).emit("typing_notification", data.typing);
+  });
+
+  socket.on("change_username", ({ username, room }) => {
     socket.username = username;
     emitRoomClients(room, io);
     console.log(`User with ID: ${socket.id} changed username to: ${username}`);
@@ -50,7 +59,7 @@ io.on("connection", (socket) => {
   // Use disconnecting to get rooms before the socket disconnects
   socket.on("disconnecting", () => {
     for (const room of socket.rooms) {
-      // All sockets are join in their own room by default
+      // All sockets join their own room by default
       if (room !== socket.id) {
         emitRoomClients(room, io);
       }

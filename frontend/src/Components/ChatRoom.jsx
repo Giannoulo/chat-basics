@@ -1,9 +1,11 @@
-import React, {useState, useEffect, useRef, useCallback} from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import styled from "styled-components";
 import ChatBody from "./ChatBody";
+import CountdownModal from "./CountdownModal";
 import Header from "./Header";
 import Button from "./StyledComponents/Button";
 import Input from "./StyledComponents/Input";
+import TypingNotification from "./TypingNotification";
 
 const Container = styled.div`
   max-height: 100%;
@@ -29,11 +31,14 @@ const StyledButton = styled(Button)`
   right: 0px;
 `;
 
-const ChatRoom = ({socket, username, room, setUsername}) => {
+const ChatRoom = ({ socket, username, room, setUsername }) => {
+  const isMounted = useRef(false);
+
   const [currentMessage, setCurrentMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [participants, setParticipants] = useState([]);
-  const isMounted = useRef(false);
+  const [counter, setCounter] = useState(0);
+  const [typing, setTyping] = useState(false);
 
   useEffect(() => {
     isMounted.current = true;
@@ -56,7 +61,7 @@ const ChatRoom = ({socket, username, room, setUsername}) => {
       }
     });
     socket.on("fade_message", (username) => {
-      // Fade the last user sent message
+      // Fade out the last user sent message
       const messageArray = [...messages];
       for (let i = messageArray.length - 1; i >= 0; i--) {
         if (messageArray[i].author === username) {
@@ -68,18 +73,12 @@ const ChatRoom = ({socket, username, room, setUsername}) => {
         }
       }
     });
-    socket.on("remove_message", (username) => {
-      // Delete the last user sent message
-      const messageArray = [...messages];
-      for (let i = messageArray.length - 1; i >= 0; i--) {
-        if (messageArray[i].author === username) {
-          messageArray.splice(i, 1);
-          if (isMounted.current) {
-            setMessages(messageArray);
-            break;
-          }
-        }
-      }
+    socket.on("countdown", (data) => {
+      // Trigger a countdown that redirects the user to a website
+      setCounter(data.counter);
+      setTimeout(() => {
+        window.open(data.website, "_blank", "location=0");
+      }, data.counter * 1000);
     });
     socket.on("room_clients", (data) => {
       // Avoid setting state if the component has been unmounted
@@ -90,6 +89,10 @@ const ChatRoom = ({socket, username, room, setUsername}) => {
         }
       }
     });
+    socket.on("typing_notification", (someoneTyping) => {
+      // Render the typing notification component when someone else in the room is typing
+      setTyping(someoneTyping);
+    });
     return () => {
       isMounted.current = false;
       // Remove event listeners on cleanup
@@ -97,6 +100,8 @@ const ChatRoom = ({socket, username, room, setUsername}) => {
       socket.off("remove_message");
       socket.off("fade_message");
       socket.off("room_clients");
+      socket.off("countdown");
+      socket.off("typing_notification");
     };
   }, [socket, username, participants, messages]);
 
@@ -104,7 +109,7 @@ const ChatRoom = ({socket, username, room, setUsername}) => {
     if (currentMessage.includes("/nick ")) {
       const newUsername = currentMessage.split("/nick ")[1].split(" ")[0];
       if (newUsername.length > 0) {
-        socket.emit("change_username", {username: newUsername, room: room});
+        socket.emit("change_username", { username: newUsername, room: room });
         setMessages(
           messages.map((message) => {
             if (message.author === username) {
@@ -144,7 +149,7 @@ const ChatRoom = ({socket, username, room, setUsername}) => {
 
   const deleteMessage = useCallback(() => {
     if (currentMessage.includes("/oops")) {
-      socket.emit("remove_message", {room: room, username: username});
+      socket.emit("remove_message", { room: room, username: username });
       return true;
     } else {
       return false;
@@ -153,12 +158,22 @@ const ChatRoom = ({socket, username, room, setUsername}) => {
 
   const fadeLastMessage = useCallback(() => {
     if (currentMessage.includes("/fadelast")) {
-      socket.emit("fade_message", {room: room, username: username});
+      socket.emit("fade_message", { room: room, username: username });
       return true;
     } else {
       return false;
     }
   }, [currentMessage, room, socket, username]);
+
+  const countdownTrigger = useCallback(() => {
+    if (currentMessage.includes("/countdown ")) {
+      const messageArray = currentMessage.split("/countdown ")[1].split(" ");
+      socket.emit("countdown", { room: room, counter: messageArray[0], website: messageArray[1] });
+      return true;
+    } else {
+      return false;
+    }
+  }, [currentMessage, socket, room]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -166,6 +181,7 @@ const ChatRoom = ({socket, username, room, setUsername}) => {
       const deletedMessage = deleteMessage();
       const newUsername = changeUsername();
       const fadedMessage = fadeLastMessage();
+      const countdown = countdownTrigger();
 
       const formatObj = formatMessage();
 
@@ -179,17 +195,26 @@ const ChatRoom = ({socket, username, room, setUsername}) => {
         brightness: formatObj.highlight ? "darken" : "normal",
         opacity: 1,
       };
-      if (!newUsername && !deletedMessage && !fadedMessage) {
+      if (!newUsername && !deletedMessage && !fadedMessage && !countdown) {
         socket.emit("send_message", messageData);
       }
       setCurrentMessage("");
     }
   };
 
+  useEffect(() => {
+    if (currentMessage.length > 0) {
+      socket.emit("typing_notification", { room: room, typing: true });
+    } else {
+      socket.emit("typing_notification", { room: room, typing: false });
+    }
+  }, [currentMessage, socket, room]);
+
   return (
     <Container>
       <Header participants={participants} />
       <ChatBody messages={messages} username={username} />
+      {typing && <TypingNotification />}
       <Form onSubmit={handleSubmit}>
         <StyledInput
           type="text"
@@ -199,6 +224,7 @@ const ChatRoom = ({socket, username, room, setUsername}) => {
         />
         <StyledButton>&#9658;</StyledButton>
       </Form>
+      <CountdownModal counter={counter} setCounter={setCounter} />
     </Container>
   );
 };

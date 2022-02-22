@@ -1,4 +1,4 @@
-import React, {useRef, useEffect} from "react";
+import React, { useRef, useEffect } from "react";
 import styled from "styled-components";
 
 import Bubble from "./Bubble";
@@ -6,7 +6,7 @@ import Bubble from "./Bubble";
 const Container = styled.div`
   background-color: #fff;
   flex: auto;
-  padding: 5px;
+  padding: 5px 5px 15px 5px;
   width: 60%;
   display: flex;
   flex-direction: column;
@@ -21,10 +21,10 @@ const Time = styled.span`
   align-self: ${(props) => (props.sent ? "flex-end" : "flex-start")};
 `;
 const Target = styled.div`
-  margin-top: 30px;
+  margin-top: 40px;
 `;
 
-const ChatBody = ({messages, username}) => {
+const ChatBody = ({ messages, username }) => {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -34,7 +34,7 @@ const ChatBody = ({messages, username}) => {
     scroll it into view.
     */
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({behavior: "smooth"});
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
