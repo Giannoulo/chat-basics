@@ -1,5 +1,6 @@
-import React, { useRef, useEffect } from "react";
+import React, {useRef, useEffect} from "react";
 import styled from "styled-components";
+import {Message} from "../Types/Message";
 
 import Bubble from "./Bubble";
 
@@ -18,14 +19,21 @@ const Container = styled.div`
 const Time = styled.span`
   margin-top: 15px;
   font-size: 0.7rem;
-  align-self: ${(props) => (props.sent ? "flex-end" : "flex-start")};
+  align-self: ${({sent}: {sent: boolean}) => (sent ? "flex-end" : "flex-start")};
 `;
 const Target = styled.div`
   margin-top: 40px;
 `;
 
-const ChatBody = ({ messages, username }) => {
-  const messagesEndRef = useRef(null);
+const addZero = (i: number): string => {
+  if (i < 10) {
+    return "0" + i.toString();
+  }
+  return i.toString();
+};
+
+const ChatBody = ({messages, username}: {messages: Message[]; username: string}) => {
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     /*
@@ -33,9 +41,7 @@ const ChatBody = ({ messages, username }) => {
     element gets out of the view as more messages are added
     scroll it into view.
     */
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
   }, [messages]);
 
   return (
@@ -45,9 +51,9 @@ const ChatBody = ({ messages, username }) => {
         return (
           <React.Fragment key={messageObj.time}>
             <Time sent={sent}>
-              {new Date(messageObj.time).getHours() +
+              {addZero(new Date(messageObj.time).getHours()) +
                 ":" +
-                new Date(messageObj.time).getMinutes() +
+                addZero(new Date(messageObj.time).getMinutes()) +
                 "  -  " +
                 messageObj.author}
             </Time>

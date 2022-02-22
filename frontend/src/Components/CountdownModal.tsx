@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -24,7 +24,12 @@ const Container = styled.div`
     }
   }
 `;
-const CountdownModal = ({ counter, setCounter }) => {
+
+type Props = {
+  counter: number;
+  setCounter: React.Dispatch<React.SetStateAction<number>>;
+};
+const CountdownModal = ({counter, setCounter}: Props) => {
   const [countdown, setCountdown] = useState(0);
 
   useEffect(() => {
@@ -35,7 +40,7 @@ const CountdownModal = ({ counter, setCounter }) => {
   }, [counter, setCounter]);
 
   useEffect(() => {
-    let countdownInterval;
+    let countdownInterval: NodeJS.Timeout;
     if (countdown > 0) {
       countdownInterval = setInterval(() => {
         setCountdown(countdown - 1);

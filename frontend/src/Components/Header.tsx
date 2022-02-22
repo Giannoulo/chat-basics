@@ -10,7 +10,7 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
 `;
-const Header = ({participants}) => {
+const Header = ({participants}: {participants: string[]}) => {
   return (
     <Container>
       You are chatting with: {participants.length === 0 ? "None" : participants.join(", ")}

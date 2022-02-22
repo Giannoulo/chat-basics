@@ -1,15 +1,20 @@
 import styled from "styled-components";
 import Message from "./Message";
 
+type Props = {
+  brightness: string;
+  opacity: number;
+};
+
 const ReceivedMessage = styled(Message)`
-  background-color: ${(props) => (props.brightness === "normal" ? "#dee2e6" : "#ced2d6")};
+  background-color: ${(props: Props) => (props.brightness === "normal" ? "#dee2e6" : "#ced2d6")};
   box-shadow: 4px 4px 6px -1px rgba(0, 0, 0, 0.23);
   align-self: flex-start;
-  opacity: ${(props) => props.opacity};
+  opacity: ${(props: Props) => props.opacity};
   &:before {
     width: 20px;
     left: -7px;
-    background-color: ${(props) => (props.brightness === "normal" ? "#dee2e6" : "#ced2d6")};
+    background-color: ${(props: Props) => (props.brightness === "normal" ? "#dee2e6" : "#ced2d6")};
     border-bottom-right-radius: 16px 14px;
   }
   &:after {

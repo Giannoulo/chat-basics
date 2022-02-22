@@ -1,10 +1,10 @@
 import React, {useState, useEffect} from "react";
-import io from "socket.io-client";
+import {io, Socket} from "socket.io-client";
 import styled from "styled-components";
 
-import ChatRoom from "./Components/ChatRoom.jsx";
+import ChatRoom from "./Components/ChatRoom";
 import Button from "./Components/StyledComponents/Button";
-import Input from "./Components/StyledComponents/Input.js";
+import Input from "./Components/StyledComponents/Input";
 
 const Container = styled.div`
   height: 100%;
@@ -27,27 +27,27 @@ const Form = styled.form`
 `;
 
 function App() {
-  const [socket, setSocket] = useState(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
   const [room, setRoom] = useState("");
   const [username, setUsername] = useState("");
   const [joinedRoom, setJoinedRoom] = useState(false);
 
   useEffect(() => {
     // Initialize web socket connection
-    setSocket(io.connect("http://localhost:3001"));
+    setSocket(io("http://localhost:3001"));
   }, []);
 
-  const joinRoom = (e) => {
+  const joinRoom = (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (room !== "" && username !== "") {
-      socket.emit("join_room", {username: username, room: room});
+      socket?.emit("join_room", {username: username, room: room});
       setJoinedRoom(true);
     }
   };
 
   return (
     <Container>
-      {joinedRoom ? (
+      {joinedRoom && socket ? (
         <ChatRoom socket={socket} room={room} username={username} setUsername={setUsername} />
       ) : (
         <>

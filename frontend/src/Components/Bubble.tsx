@@ -2,8 +2,9 @@ import React, {useState, useEffect} from "react";
 
 import SentMessage from "./StyledComponents/SentMessage";
 import ReceivedMessage from "./StyledComponents/ReceivedMessage";
+import {Message} from "../Types/Message";
 
-const Bubble = ({sent, messageObj}) => {
+const Bubble = ({sent, messageObj}: {sent: boolean; messageObj: Message}) => {
   const [formatedMsg, setFormatedMsg] = useState("");
 
   useEffect(() => {

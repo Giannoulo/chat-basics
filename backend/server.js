@@ -1,8 +1,8 @@
 const express = require("express");
 const http = require("http");
-const { Server } = require("socket.io");
+const {Server} = require("socket.io");
 
-const { emitRoomClients } = require("./eventHandlers");
+const {emitRoomClients} = require("./Utilities/eventHandlers");
 
 const app = express();
 const server = http.createServer(app);
@@ -42,7 +42,7 @@ io.on("connection", (socket) => {
 
   socket.on("countdown", (data) => {
     // Use socket instead of io, to exclude sender
-    socket.to(data.room).emit("countdown", { counter: data.counter, website: data.website });
+    socket.to(data.room).emit("countdown", {counter: data.counter, website: data.website});
   });
 
   socket.on("typing_notification", (data) => {
@@ -50,7 +50,7 @@ io.on("connection", (socket) => {
     socket.to(data.room).emit("typing_notification", data.typing);
   });
 
-  socket.on("change_username", ({ username, room }) => {
+  socket.on("change_username", ({username, room}) => {
     socket.username = username;
     emitRoomClients(room, io);
     console.log(`User with ID: ${socket.id} changed username to: ${username}`);
